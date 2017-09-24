@@ -69,6 +69,7 @@ int o(int c, int x, int y, int z, int k, int l, int m, int a) {
     }
 
     c < 44 ? (q(c, x, y, z, k, l, m, 0, 0), (p > 0 && c != a && (p < W || Z < 0)) ? (W = p, Z = c) : 0, o(c + 1, x, y, z, k, l, m, a)): 0;
+
     return 0;
 }
 
@@ -128,17 +129,21 @@ int t(int x, int y, int a, int b) {
 int r(int x, int y) {
     Red = Green = Blue = 0; //Initialise pixel values to 0/Black
     t(x, y, 0, 0);
-    x < horizontal ? (printf("%c%c%c", Red / antialias_factor / antialias_factor, Green / antialias_factor / antialias_factor, Blue / antialias_factor / antialias_factor), r(x + 1, y)) : 0;
+
+    //x < horizontal ? (printf("%c%c%c", Red / antialias_factor / antialias_factor, Green / antialias_factor / antialias_factor, Blue / antialias_factor / antialias_factor), r(x + 1, y)) : 0;
+    if (x<horizontal) {
+        (printf("%c%c%c", Red/antialias_factor/antialias_factor,Green/antialias_factor/antialias_factor,Blue/antialias_factor),r(x + 1, y));
+    }
     return 0;
 }
 
-int s(int y) {
-    r(0, --y ? s(y), y : y);
+int render_scanline(int ypos) {
+    r(0, --ypos ? render_scanline(ypos), ypos : ypos);
     return 0;
 }
 
 int main() {
     printf("P6\n%i %i\n255\n", horizontal, vertical);
-    s(vertical);
+    render_scanline(vertical);
     return 0;
 }
