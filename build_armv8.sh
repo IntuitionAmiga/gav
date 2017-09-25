@@ -9,11 +9,11 @@ rm ./bin/gav*
 #echo
 
 echo Building with Clang
-clang -Wall -Wextra -Ofast -m64 -march=armv8 -fomit-frame-pointer -fPIC -pipe gav.c -o ./bin/gav_clang
+clang -Wall -Wextra -Ofast -m64 -march=armv8 -fomit-frame-pointer -fPIC -pipe gav.c -funroll-loops -o ./bin/gav_clang
 strip -S ./bin/gav_clang
-time ./bin/gav_clang>gav.ppm
-convert gav.ppm gav.png
-cp gav.png /sdcard/
+time ./bin/gav_clang>/dev/null
+#convert gav.ppm gav.png
+#cp gav.png /sdcard/
 echo Clang results
 
 #display ./bin/gav.ppm
