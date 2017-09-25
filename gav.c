@@ -3,20 +3,20 @@
 
 #include <stdio.h>
 
-int horizontal = 1024;   //Horizontal resolution
-int vertical = 768;    //Vertical resolution
-int antialias_factor = 1;
+const int horizontal = 1024;   //Horizontal resolution
+const int vertical = 768;    //Vertical resolution
+const int antialias_factor = 1;
 
-int J = 0;
-int K = -10;
-int L = -7;
-int multiplier = 1296;
-int N = 36;
-int O = 255;
-int P = 9;
+const int J = 0;
+const int K = -10;
+const int L = -7;
+const int multiplier = 1296;
+const int N = 36;
+const int O = 255;
+const int P = 9;
 
 //int _ = 1 << 15;
-int max_colours=32768;
+const int max_colours=32768;
 
 int E, S, C;
 
