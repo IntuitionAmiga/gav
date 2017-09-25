@@ -18,7 +18,9 @@ int P = 9;
 //int _ = 1 << 15;
 int max_colours=32768;
 
-int E, S, C, D;
+int E, S, C;
+
+const int D=2;
 
 int F(int b) {
     E = "1111886:6:??AAFFHHMMOO55557799@@>>>BBBGGIIKK"[b]-64;
@@ -31,7 +33,7 @@ int F(int b) {
         S=0;
     }
 
-    D = 2;
+//    D = 2;
     return 0;
 }
 
