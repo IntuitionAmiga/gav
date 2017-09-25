@@ -22,7 +22,7 @@ int E, S, C;
 
 const int D=2;
 
-int F(int b) {
+int F(const int b) {
     E = "1111886:6:??AAFFHHMMOO55557799@@>>>BBBGGIIKK"[b]-64;
     C = "C@=::C@@==@=:C@=:C@=:C531/513/5131/31/531/53"[b]-64;
 
@@ -37,19 +37,19 @@ int F(int b) {
     return 0;
 }
 
-int I(int x, int vertical, int horizontal) {
+int I(const int x, const int vertical, int horizontal) {
     vertical ? (horizontal ^= vertical, horizontal * horizontal > x ? (horizontal ^= vertical) : 0, I(x, vertical / 2, horizontal)) : (E = horizontal);
     return 0;
 }
 
-int H(int x) {
+int H(const int x) {
     I(x, max_colours, 0);
     return 0;
 }
 
 int p;
 
-int q(int c, int x, int y, int z, int k, int l, int m, int a, int b) {
+int q(const int c, int x, int y, int z, const int k, const int l, const int m, int a, int b) {
     F(c);
     x -= E * multiplier;
     y -= S * multiplier;
@@ -63,7 +63,7 @@ int q(int c, int x, int y, int z, int k, int l, int m, int a, int b) {
 
 int Z,W;
 
-int o(int c, int x, int y, int z, int k, int l, int m, int a) {
+int o(const int c, const int x, const int y, const int z, const int k, const int l, const int m, const int a) {
     //Z = !c ? -1 : Z;
     if (!c) {
         Z=-1;
@@ -78,7 +78,7 @@ int o(int c, int x, int y, int z, int k, int l, int m, int a) {
 
 int RedGradient,GreenGradient,BlueGradient,u,v,w;
 
-int gradient_fill(int e, int f, int g, int h, int i, int j, int d, int a, int b, int V) {
+int gradient_fill(int e, int f, int g, int h, int i, int j, const int d, const int a, int b, int V) {
     //Think this whole function creates the gradient backdrop
 
     o(0, e, f, g, h, i, j, a);
@@ -120,7 +120,7 @@ int gradient_fill(int e, int f, int g, int h, int i, int j, int d, int a, int b,
 
 int Red,Green,Blue;
 
-int t(int x, int y, int a, int b) {
+int t(int const x, int const y, int a, int b) {
     gradient_fill(multiplier * J + multiplier * 40 * (antialias_factor * x + a) / horizontal / antialias_factor - multiplier * 20, multiplier * K,multiplier * L - multiplier * 30 * (antialias_factor * y + b) / vertical / antialias_factor + multiplier * 15, 0, multiplier, 0, P, -1, 0, 0);
     Red += RedGradient;
     Green += GreenGradient;
@@ -129,7 +129,7 @@ int t(int x, int y, int a, int b) {
     return 0;
 }
 
-int r(int x, int y) {
+int r(const int x, const int y) {
     Red = Green = Blue = 0; //Initialise pixel values to 0/Black
     t(x, y, 0, 0);
 
