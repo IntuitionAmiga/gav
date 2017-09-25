@@ -22,14 +22,14 @@ int sphereX, S, sphereY;
 
 const int D=2;
 
+
 // For a given input value, set the global sphereX, sphereY and S values.
 // TODO figure out what S represents
-void locateSphere(int b) {
+void locateSphere(const int b) {
     // Changing these to an actual const byte array results in the lookup being loaded into a different location and with different alignment, all of whuch kills performance.
     // Each byte in the string is encoded so that the result is signed. Original subtracted 64 from the character value. This saves a pair of integer subtractions.
     sphereX = (int)"\xF1\xF1\xF1\xF1\xF8\xF8\xF6\xFA\xF6\xFA\xFF\xFF\x01\x01\x06\x06\x08\x08\x0D\x0D\x0F\x0F\xF5\xF5\xF5\xF5\xF7\xF7\xF9\xF9\x00\x00\xFE\xFE\xFE\x02\x02\x02\x07\x07\x09\x09\x0B\x0B"[b];
     sphereY = (int)"\x03\x00\xFD\xFA\xFA\x03\x00\x00\xFD\xFD\x00\xFD\xFA\x03\x00\xFD\xFA\x03\x00\xFD\xFA\x03\xF5\xF3\xF1\xEF\xF5\xF1\xF3\xEF\xF5\xF1\xF3\xF1\xEF\xF3\xF1\xEF\xF5\xF3\xF1\xEF\xF5\xF3"[b];
-
     //S = b < 22 ? 9 : 0;
     if (b < 22) {
         S = 9;
@@ -45,14 +45,14 @@ int I(int x, int vertical, int horizontal) {
     return 0;
 }
 
-int H(int x) {
+int H(const int x) {
     I(x, max_colours, 0);
     return 0;
 }
 
 int p;
 
-int q(int c, int x, int y, int z, int k, int l, int m, int a, int b) {
+int q(const int c, int x, int y, int z, const int k, const int l, const int m, int a, int b) {
     locateSphere(c);
     x -= sphereX * multiplier;
     y -= S * multiplier;
@@ -66,7 +66,7 @@ int q(int c, int x, int y, int z, int k, int l, int m, int a, int b) {
 
 int Z,W;
 
-int o(int c, int x, int y, int z, int k, int l, int m, int a) {
+int o(const int c, const int x, const int y, const int z, const int k, const int l, const int m, const int a) {
     //Z = !c ? -1 : Z;
     if (!c) {
         Z=-1;
@@ -81,7 +81,7 @@ int o(int c, int x, int y, int z, int k, int l, int m, int a) {
 
 int RedGradient,GreenGradient,BlueGradient,u,v,w;
 
-int gradient_fill(int e, int f, int g, int h, int i, int j, int d, int a, int b, int V) {
+int gradient_fill(int e, int f, int g, int h, int i, int j, const int d, const int a, int b, int V) {
     //Think this whole function creates the gradient backdrop
 
     o(0, e, f, g, h, i, j, a);
@@ -123,7 +123,7 @@ int gradient_fill(int e, int f, int g, int h, int i, int j, int d, int a, int b,
 
 int Red,Green,Blue;
 
-int t(int x, int y, int a, int b) {
+int t(int const x, int const y, int a, int b) {
     gradient_fill(multiplier * J + multiplier * 40 * (antialias_factor * x + a) / horizontal / antialias_factor - multiplier * 20, multiplier * K,multiplier * L - multiplier * 30 * (antialias_factor * y + b) / vertical / antialias_factor + multiplier * 15, 0, multiplier, 0, P, -1, 0, 0);
     Red += RedGradient;
     Green += GreenGradient;
@@ -132,7 +132,7 @@ int t(int x, int y, int a, int b) {
     return 0;
 }
 
-int r(int x, int y) {
+int r(const int x, const int y) {
     Red = Green = Blue = 0; //Initialise pixel values to 0/Black
     t(x, y, 0, 0);
 
