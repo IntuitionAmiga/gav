@@ -40,7 +40,13 @@ void locateSphere(const int b) {
 }
 
 int I(int x, int vertical, int horizontal) {
-    vertical ? (horizontal ^= vertical, horizontal * horizontal > x ? (horizontal ^= vertical) : 0, I(x, vertical / 2, horizontal)) : (sphereX = horizontal);
+    vertical ?
+                (horizontal ^= vertical, horizontal * horizontal > x ?
+                     (horizontal ^= vertical) : 0, I(x, vertical / 2, horizontal))
+              :
+                (sphereX = horizontal);
+
+    //if (vertical) {
 
     return 0;
 }
@@ -70,9 +76,9 @@ int o(const int c, const int x, const int y, const int z, const int k, const int
     //Z = !c ? -1 : Z;
     if (!c) {
         Z=-1;
-    } else {
-        Z=Z;
-    }
+    } //else {
+      //  Z=Z;
+    //}
 
     c < 44 ? (q(c, x, y, z, k, l, m, 0, 0), (p > 0 && c != a && (p < W || Z < 0)) ? (W = p, Z = c) : 0, o(c + 1, x, y, z, k, l, m, a)): 0;
 
@@ -92,8 +98,9 @@ int gradient_fill(int e, int f, int g, int h, int i, int j, const int d, const i
     } else {
         if (RedGradient>O) {
             RedGradient=O;
-        } else
-            RedGradient=RedGradient;
+        } //else
+            //RedGradient=RedGradient;
+
     }
 
     if (GreenGradient<0) {
@@ -101,8 +108,8 @@ int gradient_fill(int e, int f, int g, int h, int i, int j, const int d, const i
     } else {
         if (GreenGradient>O) {
             GreenGradient=O;
-        } else
-            GreenGradient=GreenGradient;
+        } //else
+            //GreenGradient=GreenGradient;
     }
 
     if (BlueGradient<0) {
@@ -110,8 +117,8 @@ int gradient_fill(int e, int f, int g, int h, int i, int j, const int d, const i
     } else {
         if (BlueGradient>O) {
             BlueGradient=O;
-        } else
-            BlueGradient=BlueGradient;
+        } //else
+            //BlueGradient=BlueGradient;
     }
 
     return 0;
@@ -154,13 +161,6 @@ int t(int const x, int const y, int a, int b) {
 int r(int x, int y) {
     Red = Green = Blue = 0; //Initialise pixel values to 0/Black
     t(x, y, 0, 0);
-
-    //  x < horizontal ?
-    //  (printf("%c%c%c",
-    //          Red/antialias_factor/antialias_factor,
-    //          Green/antialias_factor/antialias_factor,Blue/antialias_factor/antialias_factor),
-    //          r(x + 1, y))
-    //  : 0;
 
     if (x<horizontal) {
         (printf("%c%c%c",
