@@ -5,7 +5,7 @@
 
 const int horizontal = 1024;   //Horizontal resolution
 const int vertical = 768;    //Vertical resolution
-const int antialias_factor = 2;
+const int antialias_factor = 1;
 
 const int J = 0;
 const int K = -10;
@@ -41,6 +41,7 @@ void locateSphere(const int b) {
 
 int I(int x, int vertical, int horizontal) {
     vertical ? (horizontal ^= vertical, horizontal * horizontal > x ? (horizontal ^= vertical) : 0, I(x, vertical / 2, horizontal)) : (sphereX = horizontal);
+
     return 0;
 }
 
@@ -135,19 +136,19 @@ int t(int const x, int const y, int a, int b) {
     Red += RedGradient;
     Green += GreenGradient;
     Blue += BlueGradient;
-    ++a < antialias_factor ? t(x, y, a, b) : (++b < antialias_factor ? t(x, y, 0, b) : 0);
-/*
-    if (t(x, y, a, b)) {
-        ++a < antialias_factor;
+
+    if (++a<antialias_factor) {
+        t(x, y, a, b);
     } else {
-        if (t(x, y, 0, b)) {
-            ++b < antialias_factor;
+        if (++b < antialias_factor) {
+            t(x, y, 0, b);
         } else {
             return 0;
         }
     }
+
     return 0;
-*/
+
 }
 
 int r(int x, int y) {
