@@ -5,7 +5,7 @@
 
 const int horizontal = 1024;   //Horizontal resolution
 const int vertical = 768;    //Vertical resolution
-const int antialias_factor = 1;
+const int antialias_factor = 2;
 
 const int J = 0;
 const int K = -10;
@@ -119,22 +119,58 @@ int gradient_fill(int e, int f, int g, int h, int i, int j, const int d, const i
 int Red,Green,Blue;
 
 int t(int const x, int const y, int a, int b) {
-    gradient_fill(multiplier * J + multiplier * 40 * (antialias_factor * x + a) / horizontal / antialias_factor - multiplier * 20, multiplier * K,multiplier * L - multiplier * 30 * (antialias_factor * y + b) / vertical / antialias_factor + multiplier * 15, 0, multiplier, 0, P, -1, 0, 0);
+    gradient_fill(multiplier * J + multiplier * 40 * (antialias_factor * x + a)
+                  / horizontal / antialias_factor
+                  - multiplier * 20, multiplier * K,multiplier * L
+                  - multiplier * 30 * (antialias_factor * y + b)
+                  / vertical / antialias_factor + multiplier * 15,
+                  0,
+                  multiplier,
+                  0,
+                  P,
+                  -1,
+                  0,
+                  0);
+
     Red += RedGradient;
     Green += GreenGradient;
     Blue += BlueGradient;
     ++a < antialias_factor ? t(x, y, a, b) : (++b < antialias_factor ? t(x, y, 0, b) : 0);
+/*
+    if (t(x, y, a, b)) {
+        ++a < antialias_factor;
+    } else {
+        if (t(x, y, 0, b)) {
+            ++b < antialias_factor;
+        } else {
+            return 0;
+        }
+    }
     return 0;
+*/
 }
 
-int r(const int x, const int y) {
+int r(int x, int y) {
     Red = Green = Blue = 0; //Initialise pixel values to 0/Black
     t(x, y, 0, 0);
 
-    //x < horizontal ? (printf("%c%c%c", Red / antialias_factor / antialias_factor, Green / antialias_factor / antialias_factor, Blue / antialias_factor / antialias_factor), r(x + 1, y)) : 0;
+    //  x < horizontal ?
+    //  (printf("%c%c%c",
+    //          Red/antialias_factor/antialias_factor,
+    //          Green/antialias_factor/antialias_factor,Blue/antialias_factor/antialias_factor),
+    //          r(x + 1, y))
+    //  : 0;
+
     if (x<horizontal) {
-        (printf("%c%c%c", Red/antialias_factor/antialias_factor,Green/antialias_factor/antialias_factor,Blue/antialias_factor),r(x + 1, y));
+        (printf("%c%c%c",
+                Red/antialias_factor/antialias_factor,
+                Green/antialias_factor/antialias_factor,
+                Blue/antialias_factor),
+                r(x + 1, y));
+    } else {
+        x=0;
     }
+
     return 0;
 }
 
