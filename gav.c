@@ -3,20 +3,20 @@
 
 #include <stdio.h>
 
-const int horizontal = 1024;   //Horizontal resolution
-const int vertical = 768;    //Vertical resolution
-const int antialias_factor = 1;
+const int h_size = 1024;   //Horizontal resolution
+const int v_size = 768;    //Vertical resolution
+const int aa_factor = 1;
 
 const int camX = 0;
 const int camY = -10;
 const int camZ = -7;
 
-const int multiplier = 1296;
-const int N = 36;
-const int O = 255;
-const int P = 9;
+const int scale = 1296;
+//const int root = 36;  //Not used for currently unknown reason
+const int max_colour = 255;
+const int max_depth = 9;
 
-const int max_colours=32768;
+const int max_root_mask=32768;
 
 int sphereX, S, sphereY;
 
@@ -43,83 +43,88 @@ void locateSphere(const int b) {
 
 }
 
-int I(int x, int vertical, int horizontal) {
-    vertical ?
-                (horizontal ^= vertical, horizontal * horizontal > x ?
-                     (horizontal ^= vertical) : 0, I(x, vertical / 2, horizontal))
-              :
-                (sphereX = horizontal);
+int squareroot_sub(int x, int mask, int guess) {
+    mask ?  (guess ^= mask, guess * guess > x
+            ? (guess ^= mask) : 0, squareroot_sub(x, mask / 2, guess))
+            : (sphereX = guess);
 
     return 0;
 }
 
-int H(const int x) {
-    I(x, max_colours, 0);
+int square_root(const int x) {
+    squareroot_sub(x, max_root_mask, 0);
     return 0;
 }
 
-int p;
+int hit_sphere_q;
 
-int q(const int c, int x, int y, int z, const int k, const int l, const int m, int a, int b) {
-    locateSphere(c);
-    x -= sphereX * multiplier;
-    y -= S * multiplier;
-    z -= sphereY * multiplier;
-    b = x * x / multiplier + y * y / multiplier + z * z / multiplier - sphere_diameter * sphere_diameter * multiplier;
-    a = -x * k / multiplier - y * l / multiplier - z * m / multiplier;
-    p = ((b = a * a / multiplier - b) >= 0 ? (I(b * multiplier, max_colours, 0), b = sphereX, a + (a > b ? -b : b)): -1.0);
-
+int hit_sphere(const int object_number, int x, int y, int z, const int dx, const int dy, const int dz, int a, int b) {
+    locateSphere(object_number);
+    x -= sphereX * scale;
+    y -= S * scale;
+    z -= sphereY * scale;
+    b = x * x / scale + y * y / scale + z * z / scale - sphere_diameter * sphere_diameter * scale;
+    a = -x * dx / scale - y * dy / scale - z * dz / scale;
+    hit_sphere_q =  ((b = a * a / scale - b) >= 0
+                  ? (squareroot_sub(b * scale, max_root_mask, 0),
+                     b = sphereX,
+                     a + (a > b ? -b : b))
+                  : -1.0);
     return 0;
 }
 
-int Z,W;
+int find_closest_index,
+    find_closest_distance;
 
-int o(const int c, const int x, const int y, const int z, const int k, const int l, const int m, const int a) {
+int find_closest(const int object_number, const int x, const int y, const int z, const int dX, const int dY, const int dZ, const int notindex) {
     //Z = !c ? -1 : Z;
-    if (!c) {
-        Z=-1;
+    if (!object_number) {
+        find_closest_index=-1;
     } //else {
       //  Z=Z;
     //}
 
-    c < 44 ? (q(c, x, y, z, k, l, m, 0, 0), (p > 0 && c != a && (p < W || Z < 0)) ? (W = p, Z = c) : 0, o(c + 1, x, y, z, k, l, m, a)): 0;
+    object_number < 44 ? (hit_sphere(object_number, x, y, z, dX, dY, dZ, 0, 0), (hit_sphere_q > 0 && object_number != notindex && (hit_sphere_q < find_closest_distance || find_closest_index < 0)) ? (find_closest_distance = hit_sphere_q, find_closest_index = object_number) : 0, find_closest(object_number + 1, x, y, z, dX, dY, dZ, notindex)): 0;
 
     return 0;
 }
 
-int RedGradient,GreenGradient,BlueGradient,u,v,w;
+int trace_ray_Red,
+    trace_ray_Green,
+    trace_ray_Blue,
+    nX,
+    nY,
+    nZ;
 
-int gradient_fill(int e, int f, int g, int h, int i, int j, const int d, const int a, int b, int V) {
-    //Think this whole function creates the gradient backdrop
+int trace_ray(int orig_x, int orig_y, int orig_z, int dir_x, int dir_y, int dir_z, const int depth, const int notindex, int tmpcol, int closest_i_saved) {
+    find_closest(0, orig_x, orig_y, orig_z, dir_x, dir_y, dir_z, notindex);
+    depth > 0 && find_closest_index >= 0? (orig_x += dir_x * find_closest_distance / scale, orig_y += dir_y * find_closest_distance / scale, orig_z += dir_z * find_closest_distance / scale, locateSphere(find_closest_index), nX = orig_x - sphereX * scale,nY = orig_y - S * scale, nZ = orig_z - sphereY * scale, tmpcol = (-2 * nX - 2 * nY + nZ) / 3,square_root(nX * nX + nY * nY + nZ * nZ), tmpcol /= sphere_diameter, tmpcol *= tmpcol, tmpcol *= 200, tmpcol /= (scale * scale),closest_i_saved = find_closest_index, sphereX != 0 ? (nX = -nX * scale / sphereX, nY = -nY * scale / sphereX, nZ = -nZ * scale / sphereX) : 0,sphereX = (dir_x * nX + dir_y * nY + dir_z * nZ) / scale, dir_x -= nX * sphereX / (scale / 2),dir_y -= nY * sphereX / (scale / 2), dir_z -= nZ * sphereX / (scale / 2),trace_ray(orig_x, orig_y, orig_z, dir_x, dir_y, dir_z, depth - 1, find_closest_index, 0, 0), trace_ray_Red /= 2, trace_ray_Green /= 2, trace_ray_Blue /= 2,closest_i_saved = closest_i_saved < 22? 7: (closest_i_saved < 30 ? 1: (closest_i_saved < 38 ? 2 : (closest_i_saved < 44 ? 4 : (closest_i_saved == 44 ? 6 : 3)))),trace_ray_Red += closest_i_saved & 1 ? tmpcol : 0, trace_ray_Green += closest_i_saved & 2 ? tmpcol : 0, trace_ray_Blue += closest_i_saved & 4 ? tmpcol : 0): (depth == max_depth ? (orig_z += 2, dir_z = orig_z > 0 ? orig_z / 8 : orig_z / 20) : 0,dir_z > 0 ? (trace_ray_Blue = dir_z * dir_z / scale, trace_ray_Red = 255 - 250 * trace_ray_Blue / scale, trace_ray_Green = 255 - 150 * trace_ray_Blue / scale,trace_ray_Blue = 255 - 100 * trace_ray_Blue / scale): (trace_ray_Blue = dir_z * dir_z / scale,trace_ray_Blue < scale / 5 ? (trace_ray_Red = 255 - 210 * trace_ray_Blue / scale, trace_ray_Green = 255 - 435 * trace_ray_Blue / scale, trace_ray_Blue = 255 - 720 * trace_ray_Blue / scale) : (trace_ray_Blue -= scale / 5, trace_ray_Red = 213 - 110 * trace_ray_Blue / scale,trace_ray_Green = 168 - 113 * trace_ray_Blue / scale, trace_ray_Blue = 111 - 85 * trace_ray_Blue / scale)),depth!=max_depth ? (trace_ray_Red /= 2, trace_ray_Green /= 2, trace_ray_Blue /= 2) : 0);
 
-    o(0, e, f, g, h, i, j, a);
-    d > 0 && Z >= 0? (e += h * W / multiplier, f += i * W / multiplier, g += j * W / multiplier, locateSphere(Z), u = e - sphereX * multiplier,v = f - S * multiplier, w = g - sphereY * multiplier, b = (-2 * u - 2 * v + w) / 3,H(u * u + v * v + w * w), b /= sphere_diameter, b *= b, b *= 200, b /= (multiplier * multiplier),V = Z, sphereX != 0 ? (u = -u * multiplier / sphereX, v = -v * multiplier / sphereX, w = -w * multiplier / sphereX) : 0,sphereX = (h * u + i * v + j * w) / multiplier, h -= u * sphereX / (multiplier / 2),i -= v * sphereX / (multiplier / 2), j -= w * sphereX / (multiplier / 2),gradient_fill(e, f, g, h, i, j, d - 1, Z, 0, 0), RedGradient /= 2, GreenGradient /= 2, BlueGradient /= 2,V = V < 22? 7: (V < 30 ? 1: (V < 38 ? 2 : (V < 44 ? 4 : (V == 44 ? 6 : 3)))),RedGradient += V & 1 ? b : 0, GreenGradient += V & 2 ? b : 0, BlueGradient += V & 4 ? b : 0): (d == P ? (g += 2, j = g > 0 ? g / 8 : g / 20) : 0,j > 0 ? (BlueGradient = j * j / multiplier, RedGradient = 255 - 250 * BlueGradient / multiplier, GreenGradient = 255 - 150 * BlueGradient / multiplier,BlueGradient = 255 - 100 * BlueGradient / multiplier): (BlueGradient = j * j / multiplier,BlueGradient < multiplier / 5 ? (RedGradient = 255 - 210 * BlueGradient / multiplier, GreenGradient = 255 - 435 * BlueGradient / multiplier, BlueGradient = 255 - 720 * BlueGradient / multiplier) : (BlueGradient -= multiplier / 5, RedGradient = 213 - 110 * BlueGradient / multiplier,GreenGradient = 168 - 113 * BlueGradient / multiplier, BlueGradient = 111 - 85 * BlueGradient / multiplier)),d != P ? (RedGradient /= 2, GreenGradient /= 2, BlueGradient /= 2) : 0);
-
-    if (RedGradient<0) {
-        RedGradient=0;
+    if (trace_ray_Red<0) {
+        trace_ray_Red=0;
     } else {
-        if (RedGradient>O) {
-            RedGradient=O;
+        if (trace_ray_Red>max_colour) {
+            trace_ray_Red=max_colour;
         } //else
-            //RedGradient=RedGradient;
+            //trace_ray_Red=trace_ray_Red;
     }
 
-    if (GreenGradient<0) {
-        GreenGradient=0;
+    if (trace_ray_Green<0) {
+        trace_ray_Green=0;
     } else {
-        if (GreenGradient>O) {
-            GreenGradient=O;
+        if (trace_ray_Green>max_colour) {
+            trace_ray_Green=max_colour;
         } //else
-            //GreenGradient=GreenGradient;
+            //trace_ray_Green=trace_ray_Green;
     }
 
-    if (BlueGradient<0) {
-        BlueGradient=0;
+    if (trace_ray_Blue<0) {
+        trace_ray_Blue=0;
     } else {
-        if (BlueGradient>O) {
-            BlueGradient=O;
+        if (trace_ray_Blue>max_colour) {
+            trace_ray_Blue=max_colour;
         } //else
-            //BlueGradient=BlueGradient;
+            //trace_ray_Blue=trace_ray_Blue;
     }
 
     return 0;
@@ -127,29 +132,29 @@ int gradient_fill(int e, int f, int g, int h, int i, int j, const int d, const i
 
 int Red,Green,Blue;
 
-int t(int const x, int const y, int a, int b) {
-    gradient_fill(multiplier * camX + multiplier * 40 * (antialias_factor * x + a)
-                  / horizontal / antialias_factor
-                  - multiplier * 20, multiplier * camY,multiplier * camZ
-                  - multiplier * 30 * (antialias_factor * y + b)
-                  / vertical / antialias_factor + multiplier * 15,
+int dpil_helper(int const x, int const y, int a, int b) {
+    trace_ray(scale * camX + scale * 40 * (aa_factor * x + a)
+                  / h_size / aa_factor
+                  - scale * 20, scale * camY,scale * camZ
+                  - scale * 30 * (aa_factor * y + b)
+                  / v_size / aa_factor + scale * 15,
                   0,
-                  multiplier,
+                  scale,
                   0,
-                  P,
+                  max_depth,
                   -1,
                   0,
                   0);
 
-    Red += RedGradient;
-    Green += GreenGradient;
-    Blue += BlueGradient;
+    Red += trace_ray_Red;
+    Green += trace_ray_Green;
+    Blue += trace_ray_Blue;
 
-    if (++a<antialias_factor) {
-        t(x, y, a, b);
+    if (++a<aa_factor) {
+        dpil_helper(x, y, a, b);
     } else {
-        if (++b < antialias_factor) {
-            t(x, y, 0, b);
+        if (++b < aa_factor) {
+            dpil_helper(x, y, 0, b);
         } else {
             return 0;
         }
@@ -159,16 +164,16 @@ int t(int const x, int const y, int a, int b) {
 
 }
 
-int r(int x, int y) {
+int do_pixels_in_line(int x, int y) {
     Red = Green = Blue = 0; //Initialise pixel values to 0/Black
-    t(x, y, 0, 0);
+    dpil_helper(x, y, 0, 0);
 
-    if (x<horizontal) {
+    if (x<h_size) {
         (printf("%c%c%c",
-                Red/antialias_factor/antialias_factor,
-                Green/antialias_factor/antialias_factor,
-                Blue/antialias_factor),
-                r(x + 1, y));
+                Red/aa_factor/aa_factor,
+                Green/aa_factor/aa_factor,
+                Blue/aa_factor),
+                do_pixels_in_line(x + 1, y));
     } else {
         x=0;
     }
@@ -177,12 +182,12 @@ int r(int x, int y) {
 }
 
 int render_scanline(int ypos) {
-    r(0, --ypos ? render_scanline(ypos), ypos : ypos);
+    do_pixels_in_line(0, --ypos ? render_scanline(ypos), ypos : ypos);
     return 0;
 }
 
 int main() {
-    printf("P6\n%i %i\n255\n", horizontal, vertical);
-    render_scanline(vertical);
+    printf("P6\n%i %i\n255\n", h_size, v_size);
+    render_scanline(v_size);
     return 0;
 }
