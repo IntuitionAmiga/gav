@@ -7,9 +7,10 @@ const int horizontal = 1024;   //Horizontal resolution
 const int vertical = 768;    //Vertical resolution
 const int antialias_factor = 1;
 
-const int J = 0;
-const int K = -10;
-const int L = -7;
+const int camX = 0;
+const int camY = -10;
+const int camZ = -7;
+
 const int multiplier = 1296;
 const int N = 36;
 const int O = 255;
@@ -19,8 +20,7 @@ const int max_colours=32768;
 
 int sphereX, S, sphereY;
 
-const int sphere_size=2;
-
+const int sphere_diameter=2;
 
 // For a given input value, set the global sphereX, sphereY and S values.
 // TODO figure out what S represents
@@ -32,11 +32,15 @@ void locateSphere(const int b) {
     //    sphereX="1""111886:6:??AAFFHHMMOO55557799@@>>>BBBGGIIKK"[b]-64;
     //    sphereY="C@=::C@@==@=:C@=:C@=:C5""31/513/5131/31/531/53"[b ]-64;
 
+    //S can't go above 1268 or below -11 without the spheres not rendering.
+    //It's possibly the transparency level as -11 makes them see-through
+
     if (b < 22) {
         S = 9;
     } else {
         S = 0;
     }
+
 }
 
 int I(int x, int vertical, int horizontal) {
@@ -45,8 +49,6 @@ int I(int x, int vertical, int horizontal) {
                      (horizontal ^= vertical) : 0, I(x, vertical / 2, horizontal))
               :
                 (sphereX = horizontal);
-
-    //if (vertical) {
 
     return 0;
 }
@@ -63,7 +65,7 @@ int q(const int c, int x, int y, int z, const int k, const int l, const int m, i
     x -= sphereX * multiplier;
     y -= S * multiplier;
     z -= sphereY * multiplier;
-    b = x * x / multiplier + y * y / multiplier + z * z / multiplier - sphere_size * sphere_size * multiplier;
+    b = x * x / multiplier + y * y / multiplier + z * z / multiplier - sphere_diameter * sphere_diameter * multiplier;
     a = -x * k / multiplier - y * l / multiplier - z * m / multiplier;
     p = ((b = a * a / multiplier - b) >= 0 ? (I(b * multiplier, max_colours, 0), b = sphereX, a + (a > b ? -b : b)): -1.0);
 
@@ -91,7 +93,7 @@ int gradient_fill(int e, int f, int g, int h, int i, int j, const int d, const i
     //Think this whole function creates the gradient backdrop
 
     o(0, e, f, g, h, i, j, a);
-    d > 0 && Z >= 0? (e += h * W / multiplier, f += i * W / multiplier, g += j * W / multiplier, locateSphere(Z), u = e - sphereX * multiplier,v = f - S * multiplier, w = g - sphereY * multiplier, b = (-2 * u - 2 * v + w) / 3,H(u * u + v * v + w * w), b /= sphere_size, b *= b, b *= 200, b /= (multiplier * multiplier),V = Z, sphereX != 0 ? (u = -u * multiplier / sphereX, v = -v * multiplier / sphereX, w = -w * multiplier / sphereX) : 0,sphereX = (h * u + i * v + j * w) / multiplier, h -= u * sphereX / (multiplier / 2),i -= v * sphereX / (multiplier / 2), j -= w * sphereX / (multiplier / 2),gradient_fill(e, f, g, h, i, j, d - 1, Z, 0, 0), RedGradient /= 2, GreenGradient /= 2, BlueGradient /= 2,V = V < 22? 7: (V < 30 ? 1: (V < 38 ? 2 : (V < 44 ? 4 : (V == 44 ? 6 : 3)))),RedGradient += V & 1 ? b : 0, GreenGradient += V & 2 ? b : 0, BlueGradient += V & 4 ? b : 0): (d == P ? (g += 2, j = g > 0 ? g / 8 : g / 20) : 0,j > 0 ? (BlueGradient = j * j / multiplier, RedGradient = 255 - 250 * BlueGradient / multiplier, GreenGradient = 255 - 150 * BlueGradient / multiplier,BlueGradient = 255 - 100 * BlueGradient / multiplier): (BlueGradient = j * j / multiplier,BlueGradient < multiplier / 5 ? (RedGradient = 255 - 210 * BlueGradient / multiplier, GreenGradient = 255 - 435 * BlueGradient / multiplier, BlueGradient = 255 - 720 * BlueGradient / multiplier) : (BlueGradient -= multiplier / 5, RedGradient = 213 - 110 * BlueGradient / multiplier,GreenGradient = 168 - 113 * BlueGradient / multiplier, BlueGradient = 111 - 85 * BlueGradient / multiplier)),d != P ? (RedGradient /= 2, GreenGradient /= 2, BlueGradient /= 2) : 0);
+    d > 0 && Z >= 0? (e += h * W / multiplier, f += i * W / multiplier, g += j * W / multiplier, locateSphere(Z), u = e - sphereX * multiplier,v = f - S * multiplier, w = g - sphereY * multiplier, b = (-2 * u - 2 * v + w) / 3,H(u * u + v * v + w * w), b /= sphere_diameter, b *= b, b *= 200, b /= (multiplier * multiplier),V = Z, sphereX != 0 ? (u = -u * multiplier / sphereX, v = -v * multiplier / sphereX, w = -w * multiplier / sphereX) : 0,sphereX = (h * u + i * v + j * w) / multiplier, h -= u * sphereX / (multiplier / 2),i -= v * sphereX / (multiplier / 2), j -= w * sphereX / (multiplier / 2),gradient_fill(e, f, g, h, i, j, d - 1, Z, 0, 0), RedGradient /= 2, GreenGradient /= 2, BlueGradient /= 2,V = V < 22? 7: (V < 30 ? 1: (V < 38 ? 2 : (V < 44 ? 4 : (V == 44 ? 6 : 3)))),RedGradient += V & 1 ? b : 0, GreenGradient += V & 2 ? b : 0, BlueGradient += V & 4 ? b : 0): (d == P ? (g += 2, j = g > 0 ? g / 8 : g / 20) : 0,j > 0 ? (BlueGradient = j * j / multiplier, RedGradient = 255 - 250 * BlueGradient / multiplier, GreenGradient = 255 - 150 * BlueGradient / multiplier,BlueGradient = 255 - 100 * BlueGradient / multiplier): (BlueGradient = j * j / multiplier,BlueGradient < multiplier / 5 ? (RedGradient = 255 - 210 * BlueGradient / multiplier, GreenGradient = 255 - 435 * BlueGradient / multiplier, BlueGradient = 255 - 720 * BlueGradient / multiplier) : (BlueGradient -= multiplier / 5, RedGradient = 213 - 110 * BlueGradient / multiplier,GreenGradient = 168 - 113 * BlueGradient / multiplier, BlueGradient = 111 - 85 * BlueGradient / multiplier)),d != P ? (RedGradient /= 2, GreenGradient /= 2, BlueGradient /= 2) : 0);
 
     if (RedGradient<0) {
         RedGradient=0;
@@ -100,7 +102,6 @@ int gradient_fill(int e, int f, int g, int h, int i, int j, const int d, const i
             RedGradient=O;
         } //else
             //RedGradient=RedGradient;
-
     }
 
     if (GreenGradient<0) {
@@ -127,9 +128,9 @@ int gradient_fill(int e, int f, int g, int h, int i, int j, const int d, const i
 int Red,Green,Blue;
 
 int t(int const x, int const y, int a, int b) {
-    gradient_fill(multiplier * J + multiplier * 40 * (antialias_factor * x + a)
+    gradient_fill(multiplier * camX + multiplier * 40 * (antialias_factor * x + a)
                   / horizontal / antialias_factor
-                  - multiplier * 20, multiplier * K,multiplier * L
+                  - multiplier * 20, multiplier * camY,multiplier * camZ
                   - multiplier * 30 * (antialias_factor * y + b)
                   / vertical / antialias_factor + multiplier * 15,
                   0,
